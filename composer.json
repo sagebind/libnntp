@@ -1,0 +1,16 @@
+{
+    "name": "coderstephen/libnntp",
+    "description": "Async NNTP news protocol library",
+    "type": "library",
+    "require": {
+        "php": ">=7.0",
+        "icicleio/socket": "~2.0",
+        "icicleio/dns": "~2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LibNNTP\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
