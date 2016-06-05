@@ -1,8 +1,10 @@
 <?php
-namespace LibNNTP;
+namespace nntp;
+
+use Countable;
 
 
-class Group
+class Group implements Countable
 {
     const STATUS_UNKNOWN = 0;
     const POSTING_PERMITTED = 1;
@@ -10,13 +12,15 @@ class Group
     const POSTING_FORWARDED = 3;
 
     private $name;
+    private $count;
     private $high;
     private $low;
     private $status;
 
-    public function __construct(string $name, int $high, int $low, int $status = 0)
+    public function __construct(string $name, int $count, int $high, int $low, int $status = 0)
     {
         $this->name = $name;
+        $this->count = $count;
         $this->high = $high;
         $this->low = $low;
         $this->status = $status;
@@ -25,6 +29,14 @@ class Group
     public function name(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Gets the number of articles in the group.
+     */
+    public function count(): int
+    {
+        return $this->count;
     }
 
     public function highWaterMark(): int
