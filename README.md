@@ -1,2 +1,2 @@
-# libnntp
-Async NNTP news protocol library
+# `nntp`
+An asynchronous NNTP news protocol library.
