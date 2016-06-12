@@ -1,7 +1,16 @@
 {
     "name": "coderstephen/nntp",
-    "description": "Async NNTP news protocol library",
     "type": "library",
+    "description": "Async NNTP news protocol library",
+    "keywords": ["nntp", "news", "usenet"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Stephen Coakley",
+            "email": "me@stephencoakley.com",
+            "homepage": "http://stephencoakley.com"
+        }
+    ],
     "require": {
         "php": ">=7.0",
         "icicleio/dns": "~2.0",
