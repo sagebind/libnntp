@@ -1,7 +1,7 @@
 {
-    "name": "coderstephen/nntp",
+    "name": "coderstephen/libnntp",
     "type": "library",
-    "description": "Async NNTP news protocol library",
+    "description": "Asynchronous implementation of the NNTP news protocol",
     "keywords": ["nntp", "news", "usenet"],
     "license": "MIT",
     "authors": [
