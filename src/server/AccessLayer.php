@@ -26,7 +26,22 @@ interface AccessLayer
     public function getArticleById(string $id): Generator;
 
     /**
+     * Gets an article by its number in a group.
+     */
+    public function getArticleByNumber(string $group, int $number): Generator;
+
+    /**
+     * Gets the next article following the given article, by number, in the group.
+     */
+    public function getNextArticle(string $group, int $number): Generator;
+
+    /**
+    * Gets the previous article before the given article, by number, in the group.
+    */
+    public function getPreviousArticle(string $group, int $number): Generator;
+
+    /**
      * Posts an article to a group.
      */
-    public function postArticle(Group $group, Article $article): Generator;
+    public function postArticle(string $group, Article $article): Generator;
 }

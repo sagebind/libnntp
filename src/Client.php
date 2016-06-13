@@ -331,6 +331,7 @@ class Client
     {
         yield from $this->encoder->writeCommand($this->stream, $command);
         $response = yield from $this->encoder->readResponse($this->stream);
+        var_dump($response);
 
         // If the command was unsuccessful, throw an exception with the server's error reason.
         if (!$response->isOk()) {

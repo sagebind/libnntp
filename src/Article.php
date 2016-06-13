@@ -25,9 +25,18 @@ class Article
         return new self($body, $headers);
     }
 
-    public function __construct(string $body, HeaderBag $headers = null, int $number = 0)
+    public function __construct(string $body, $headers = null, int $number = 0)
     {
-        $this->headers = $headers ?: new HeaderBag();
+        if (empty($headers)) {
+            $this->headers = new HeaderBag();
+        } elseif ($headers instanceof HeaderBag) {
+            $this->headers = $headers;
+        } elseif (is_array($headers)) {
+            $this->headers = new HeaderBag($headers);
+        } else {
+            throw new \InvalidArgumentException('Invalid type for headers');
+        }
+
         $this->body = $body;
         $this->number = $number;
     }
