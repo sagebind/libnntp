@@ -27,16 +27,16 @@ class Client
     public static function connect(string $host, int $port = 119, array $options = []): Generator
     {
         // Connect to the remote host.
-        $stream = yield from Dns\connect($host, $port, $options);
+        $socket = yield from Dns\connect($host, $port, $options);
 
         // Encoder for encoding and decoding the protocol.
         $encoder = new Rfc3977Encoder();
 
         // Create the client object.
-        $client = new static($stream, $encoder);
+        $client = new static($socket, $encoder);
 
         // The server should respond with a welcome message.
-        $response = yield from $encoder->readResponse($stream);
+        $response = yield from $encoder->readResponse($socket);
 
         // A 201 response code means posting is not allowed.
         if ($response->code() === 201) {
@@ -49,6 +49,12 @@ class Client
         // Set reader client mode if necessary.
         if ($client->hasCapability('MODE-READER') || !$client->hasCapability('READER')) {
             yield from $client->sendCommand(new Command('MODE READER'));
+        }
+
+        // Enable encryption if supported.
+        if ($client->hasCapability('STARTTLS')) {
+            yield from $client->sendCommand(new Command('STARTTLS'));
+            yield from $socket->enableCrypto(STREAM_CRYPTO_METHOD_ANY_CLIENT);
         }
 
         return $client;
@@ -124,7 +130,7 @@ class Client
 
             $high = (int)$matches[2];
             $low = (int)$matches[3];
-            return new Group($matches[1], $high - $low, $high, $low, $status);
+            return new Group($matches[1], $high - $low, $low, $high, $status);
         }, $matches);
     }
 
@@ -159,7 +165,7 @@ class Client
             throw new FormatException('Invalid group format');
         }
 
-        $this->group = new Group($matches[4], (int)$matches[1], (int)$matches[3], (int)$matches[2]);
+        $this->group = new Group($matches[4], (int)$matches[1], (int)$matches[2], (int)$matches[3]);
         return $this->group;
     }
 
@@ -331,7 +337,6 @@ class Client
     {
         yield from $this->encoder->writeCommand($this->stream, $command);
         $response = yield from $this->encoder->readResponse($this->stream);
-        var_dump($response);
 
         // If the command was unsuccessful, throw an exception with the server's error reason.
         if (!$response->isOk()) {

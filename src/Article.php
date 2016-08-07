@@ -1,9 +1,10 @@
 <?php
 namespace nntp;
 
-
 class Article
 {
+    const DATE_FORMAT = 'j M Y H:i:s O';
+
     private $headers;
     private $body;
     private $number;

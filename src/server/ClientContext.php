@@ -2,45 +2,38 @@
 namespace nntp\server;
 
 use Generator;
-use Icicle\Stream\DuplexStream;
-use Icicle\Stream\Exception\UnreadableException;
-use nntp\Group;
-use nntp\protocol\{Command, Encoder, Response};
-use nntp\server\handlers\Handler;
+use Icicle\Log\{Log, function log};
+use Icicle\Socket\Socket;
+use nntp\protocol\Command;
+use nntp\protocol\Encoder;
+use nntp\protocol\Response;
 
-
+/**
+ * Stores the connection and state for a single connected client.
+ */
 class ClientContext
 {
-    private $stream;
+    private $socket;
     private $encoder;
-    private $currentGroup;
-    private $currentArticle;
+    private $accessLayer;
+    private $cursor;
 
-    public function __construct(DuplexStream $stream, Encoder $encoder, AccessLayer $accessLayer)
+    public function __construct(Socket $socket, Encoder $encoder, AccessLayer $accessLayer)
     {
-        $this->stream = $stream;
+        $this->socket = $socket;
         $this->encoder = $encoder;
         $this->accessLayer = $accessLayer;
+        $this->cursor = new InvalidCursor();
     }
 
-    public function getCurrentGroup()
+    public function getCursor(): GroupCursor
     {
-        return $this->currentGroup;
+        return $this->cursor;
     }
 
-    public function setCurrentGroup(string $group)
+    public function setCursor(GroupCursor $cursor)
     {
-        $this->currentGroup = $group;
-    }
-
-    public function getCurrentArticle()
-    {
-        return $this->currentArticle;
-    }
-
-    public function setCurrentArticle(int $articleNumber)
-    {
-        $this->currentArticle = $articleNumber;
+        $this->cursor = $cursor;
     }
 
     public function getAccessLayer(): AccessLayer
@@ -48,23 +41,36 @@ class ClientContext
         return $this->accessLayer;
     }
 
+    public function getSocket(): Socket
+    {
+        return $this->socket;
+    }
+
     public function readCommand(): Generator
     {
-        return $this->encoder->readCommand($this->stream);
+        $command = yield from $this->encoder->readCommand($this->socket);
+
+        yield from log()->log(Log::DEBUG, 'Received command: %s', $command);
+
+        return $command;
     }
 
     public function writeResponse(Response $response): Generator
     {
-        return $this->encoder->writeResponse($this->stream, $response);
+        yield from log()->log(Log::DEBUG, 'Sent response: %s', $response);
+
+        return yield from $this->encoder->writeResponse($this->socket, $response);
     }
 
     public function readData(): Generator
     {
-        return $this->encoder->readData($this->stream);
+        return yield from $this->encoder->readData($this->socket);
     }
 
     public function writeData(string $data): Generator
     {
-        return $this->encoder->writeData($this->stream, $data);
+        yield from log()->log(Log::DEBUG, "Sent data:\n%s", $data);
+
+        return yield from $this->encoder->writeData($this->socket, $data);
     }
 }

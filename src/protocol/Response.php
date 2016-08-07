@@ -32,4 +32,9 @@ class Response
     {
         return $this->code < 400;
     }
+
+    public function __toString()
+    {
+        return $this->code . ' ' . $this->message;
+    }
 }

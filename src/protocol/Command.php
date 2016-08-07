@@ -36,4 +36,9 @@ class Command
 
         return $this->args[$index];
     }
+
+    public function __toString()
+    {
+        return $this->name . ' ' . implode(' ', $this->args);
+    }
 }

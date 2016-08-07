@@ -3,14 +3,29 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 use Icicle\Coroutine;
 use Icicle\Loop;
-use LibNNTP\Client;
+use nntp\Client;
 
 
 Coroutine\create(function () {
-    $client = new Client();
-    yield from $client->connect('news.php.net');
-    var_dump(yield from $client->getGroups());
-    var_dump(yield from $client->chooseGroup('php.internals'));
+    $client = yield from Client::connect('localhost', 1190);
+    //$client = yield from Client::connect('news.php.net', 119);
+
+    //var_dump(yield from $client->getGroups());
+
+    $group = yield from $client->setCurrentGroup('meta');
+
+    $c = min(1, $group->count());
+    for ($i = 0; $i < $c; ++$i) {
+        $article = yield from $client->getArticleHeaders();
+        var_dump($article);
+
+        if ($i + 1 < $c) {
+            yield from $client->next();
+        }
+    }
+
+    var_dump(yield from $client->getArticle());
+
     yield from $client->close();
 })->done();
 

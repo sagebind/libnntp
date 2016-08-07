@@ -27,7 +27,7 @@ class ListHandler implements Handler
                     $status = 'm';
                     break;
                 default:
-                    $status = '-';
+                    $status = 'u';
                     break;
             }
 

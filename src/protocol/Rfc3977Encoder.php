@@ -68,6 +68,9 @@ class Rfc3977Encoder implements Encoder
         $raw = str_replace("\r\n.\r\n", "\r\n..\r\n", $data);
 
         // Send the data along with a terminator.
-        yield from $stream->write($raw . "\r\n.\r\n");
+        if (substr($raw, -2) !== "\r\n") {
+            $raw = $raw . "\r\n";
+        }
+        yield from $stream->write($raw . ".\r\n");
     }
 }

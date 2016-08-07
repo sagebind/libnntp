@@ -13,16 +13,20 @@ class Group implements Countable
 
     private $name;
     private $count;
-    private $high;
     private $low;
+    private $high;
     private $status;
 
-    public function __construct(string $name, int $count, int $high, int $low, int $status = 0)
+    public function __construct(string $name, int $count, int $low, int $high, int $status = 0)
     {
+        if ($low > $high) {
+            throw new \DomainException('Low water mark cannot be greater than high water mark.');
+        }
+
         $this->name = $name;
         $this->count = $count;
-        $this->high = $high;
         $this->low = $low;
+        $this->high = $high;
         $this->status = $status;
     }
 
@@ -39,14 +43,14 @@ class Group implements Countable
         return $this->count;
     }
 
-    public function highWaterMark(): int
-    {
-        return $this->high;
-    }
-
     public function lowWaterMark(): int
     {
         return $this->low;
+    }
+
+    public function highWaterMark(): int
+    {
+        return $this->high;
     }
 
     public function status()

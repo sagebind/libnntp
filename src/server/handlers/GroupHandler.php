@@ -2,9 +2,10 @@
 namespace nntp\server\handlers;
 
 use Generator;
-use nntp\protocol\{Command, Response};
+use nntp\protocol\Command;
+use nntp\protocol\Response;
 use nntp\server\ClientContext;
-
+use nntp\server\NotFoundException;
 
 class GroupHandler implements Handler
 {
@@ -15,16 +16,16 @@ class GroupHandler implements Handler
             return;
         }
 
-        $name = $command->arg(0);
-        $group = yield from $context->getAccessLayer()->getGroupByName($name);
-
-        if (!$group) {
+        try {
+            $name = $command->arg(0);
+            $cursor = yield from $context->getAccessLayer()->getGroupCursor($name);
+            $context->setCursor($cursor);
+        } catch (NotFoundException $e) {
             yield from $context->writeResponse(new Response(411, 'No such newsgroup'));
             return;
         }
 
-        $context->setCurrentGroup($group->name());
-        $context->setCurrentArticle($group->lowWaterMark());
+        $group = $context->getCursor()->getGroup();
         yield from $context->writeResponse(new Response(211, $group->count() . ' ' . $group->lowWaterMark() . ' ' . $group->highWaterMark() . ' ' . $group->name() . ' Group successfully selected'));
     }
 }

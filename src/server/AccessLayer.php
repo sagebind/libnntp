@@ -11,6 +11,11 @@ use nntp\{Article, Group};
 interface AccessLayer
 {
     /**
+     * Checks if posting is currently allowed.
+     */
+    public function isPostingAllowed(): bool;
+
+    /**
      * Gets all available groups.
      */
     public function getGroups(): Generator;
@@ -21,6 +26,11 @@ interface AccessLayer
     public function getGroupByName(string $name): Generator;
 
     /**
+     * Get a group cursor starting at the beginning of a group.
+     */
+    public function getGroupCursor(string $name): Generator;
+
+    /**
      * Gets an article by its unique message ID.
      */
     public function getArticleById(string $id): Generator;
@@ -29,16 +39,6 @@ interface AccessLayer
      * Gets an article by its number in a group.
      */
     public function getArticleByNumber(string $group, int $number): Generator;
-
-    /**
-     * Gets the next article following the given article, by number, in the group.
-     */
-    public function getNextArticle(string $group, int $number): Generator;
-
-    /**
-    * Gets the previous article before the given article, by number, in the group.
-    */
-    public function getPreviousArticle(string $group, int $number): Generator;
 
     /**
      * Posts an article to a group.

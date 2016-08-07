@@ -2,15 +2,18 @@
 namespace nntp\server\handlers;
 
 use Generator;
-use nntp\protocol\{Command, Response};
-use nntp\server\{AccessUtil, ClientContext};
-
+use nntp\protocol\Command;
+use nntp\protocol\Response;
+use nntp\server\AccessUtil;
+use nntp\server\ClientContext;
 
 class BodyHandler implements Handler
 {
+    use ArticleHandlerTrait;
+
     public function handle(Command $command, ClientContext $context): Generator
     {
-        $article = yield from AccessUtil::fetchArticleFromArgs($context, ...$command->args());
+        $article = yield from $this->fetchArticle($command, $context);
 
         if ($article) {
             yield from $context->writeResponse(new Response(222, '%d %s Body follows (multi-line)', $article->number(), $article->id()));
